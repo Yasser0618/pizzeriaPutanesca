@@ -17,18 +17,23 @@ $ingredientes = Ingrediente::getAll($db);
     <?php require_once("../partials/_menu.php") ?>
 
     <h1>Pizzas:</h1>
-    <table border="1" cellspacing="10" cellpadding="10"></table>
-    <thead>
-        <tr>
-            <th>Nombre</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($ingredientes as $ingrediente) : ?>
+    <table border="1" cellspacing="10" cellpadding="10">
+        <thead>
             <tr>
-                <td><?= $ingrediente["nombre"] ?></td>
+                <th>Nombre</th>
             </tr>
-        <?php endforeach; ?>
-    </tbody>
+        </thead>
+        <tbody>
+            <?php foreach ($ingredientes as $ingrediente) : ?>
+                <tr>
+                    <td><?= $ingrediente["nombre"] ?></td>
+                    <td>
+                        <a href="./edit-ingredientes.php?id=<?= $ingrediente["id"]; ?>">Editar</a><br>
+                        <a href="./delete-ingredientes.php?id=<?= $ingrediente["id"]; ?>">Borrar</a>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
 </body>
 </html>

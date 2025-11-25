@@ -19,7 +19,7 @@ $pizzas = Pizza::getAll($db);
 </head>
 <body>
     <h1>Menú:</h1>
-    <?php include('../partials/_menu.php') ?>
+    <?php require_once('../partials/_menu.php') ?>
 
 
     <h1>Pizzas:</h1>
@@ -40,6 +40,10 @@ $pizzas = Pizza::getAll($db);
                     <td><?= $pizza['descripcion'] ?></td>
                     <td><?= $pizza['precio'] ?></td>
                     <td><?= $pizza['imagen'] ?></td>
+                    <td>
+                        <a href="./edit-pizza.php?id=<?= $pizza["id"]; ?>">Editar</a><br>
+                        <a href="./delete-pizza.php?id=<?= $pizza["id"]; ?>">Borrar</a>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
