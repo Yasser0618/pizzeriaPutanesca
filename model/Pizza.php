@@ -1,4 +1,14 @@
 <?php
+/*
+***
+* getAll -> Recupera toda la informacion
+* getOneById -> Recupera la informacion de un item en concreto
+* save:
+*     -> insert
+*     -> update
+* delete -> eliminar un token. Se pude hacer como metodo estatico en la clase
+***
+*/
 class Pizza {
     private $db;//Como va a manejar la base de datos es necesaria una variable para ello
     private $id;
@@ -14,6 +24,49 @@ class Pizza {
     public static function getAll($db) {
         $stmt = $db->query("SELECT * FROM pizzas");//$stmt es una variable estandar
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function save(){
+        try{
+            if ($this->id){
+                $sql = "UPDATE pizzas
+                        SET nombre = :nombre, descripcion = :descripcion, imagen = :imagen, precio = :precio
+                        WHERE id = :id";
+                $stmt = $this->db->prepare($sql);
+                $stmt->bindParam(":id", $this->id);
+            } else{
+                $sql = "INSERT INTO pizzas
+                        (nombre, descripcion, imagen, precio)
+                        VALUES
+                        (:nombre, :descripcion, :imagen, :precio)";
+                $stmt = $this->db->prepare($sql);
+            }
+            $stmt->bindParam(":nombre", $this->nombre);
+            $stmt->bindParam(":descripcion", $this->descripcion);
+            $stmt->bindParam(":imagen", $this->imagen);
+            $stmt->bindParam(":precio", $this->precio);
+            $stmt->execute();
+            return true;
+        } catch (PDOException $e){
+            echo "Error al guardar la pizza: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function loadById($id){
+        $stmt = $this -> db -> prepare("SELECT * FROM pizzas WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        $pizza = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($pizza) {
+            $this->id = $pizza['id'];
+            $this->nombre = $pizza['nombre'];
+            $this->descripcion = $pizza['descripcion'];
+            $this->precio = $pizza['precio'];
+            $this->imagen = $pizza['imagen'];
+            return true;
+        }
+        return false;
     }
 
     /**
