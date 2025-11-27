@@ -4,6 +4,15 @@ require_once("../../model/Pizza.php");
 
 $pizzaId = isset($_GET["id"]) ? intval($_GET["id"]) : 0;
 
+$ingredientes = [];
+try {
+    $stmt = $db->query("SELECT * FROM ingredientes");
+    $ingredientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    echo "Error al obtener los ingredientes: " . $e->getMessage();
+    return [];
+} 
+
 $pizza = new Pizza($db);
 if (!$pizza -> loadById($pizzaId)){
     echo "Pizza no encontrada.";
@@ -46,6 +55,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         <br>
         <label for="imagen">imagen:</label>
         <input type="text" name="imagen" id="imagen" value="<?= $pizza->getImagen() ?>" required>
+        <br>
+        <fieldset>
+            <legend>Ingredientes</legend>
+            <?php foreach ($ingredientes as $ingrediente) {
+                $checked = in_array($ingrediente["id"], $pizza->getIngredientes()) ? "checked" : "" ?>
+                <input type="checkbox" name="ingredientes[]" id="ingrediente<?= $ingrediente["id"] ?>" value="<?= $ingrediente["id"] ?>" <?= $checked ?>>
+                <label for="<?= $ingrediente["nombre"] ?>"><?= $ingrediente["nombre"] ?></label>
+                <br>
+            <?php } ?>
+        </fieldset>
         <br>
         <input type="submit" name="submit" id="submit" value="Guardar Cambios">
     </form>
