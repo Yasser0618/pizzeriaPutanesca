@@ -16,6 +16,7 @@ class Pizza {
     private $descripcion;
     private $imagen;
     private $precio;
+    private array $ingredientes;
 
     public function __construct($db) {
         $this->db = $db;
@@ -46,6 +47,28 @@ class Pizza {
             $stmt->bindParam(":imagen", $this->imagen);
             $stmt->bindParam(":precio", $this->precio);
             $stmt->execute();
+
+            if(!isset($this -> id)){
+                $this -> id = $this -> db -> lastInsertId();
+            }
+
+            if(isset($this -> id)){
+                $sqlDelete = "DELETE FROM pizza_ingrediente WHERE id_pizza = :id:pizza";
+                $stmtDelete = $this -> db -> prepare($sqlDelete);
+                $stmtDelete -> bindParam(":id_pizza", $this -> id);
+                $stmtDelete -> execute();
+
+                if (!empty($this -> ingredientes)){
+                    $sqlInsert = "INSERT INTO pizza_ingrediente(id_pizza, id_ingrediente) VALUES (:id_pizza, :id_ingrediente)";
+                    $stmtInsert = $this -> db -> prepare($sqlInsert);
+
+                    foreach($this -> ingredientes as $ingredienteId){
+                        $stmtInsert-> bindParam(":id_pizza", $this -> id);
+                        $stmtInsert-> bindParam(":id_ingrediente", $ingredienteId);
+                        $stmtInsert-> execute();
+                    }
+                }
+            }
             return true;
         } catch (PDOException $e){
             echo "Error al guardar la pizza: " . $e->getMessage();
@@ -64,6 +87,11 @@ class Pizza {
             $this->descripcion = $pizza['descripcion'];
             $this->precio = $pizza['precio'];
             $this->imagen = $pizza['imagen'];
+
+            $stmtIng = $this->db->prepare("SELECT id_ingrediente FROM pizza_ingrediente WHERE id_pizza = :id_pizza");
+            $stmtIng->binParam(":id_pizza", $this->id);
+            $stmtIng->excute();
+            $this->ingredientes = $stmtIng->fecthAll(PDO::FETCH_COLUMN);
             return true;
         }
         return false;
@@ -173,6 +201,24 @@ class Pizza {
     public function setPrecio($precio): self
     {
         $this->precio = $precio;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ingredientes
+     */
+    public function getIngredientes(): array
+    {
+        return $this->ingredientes;
+    }
+
+    /**
+     * Set the value of ingredientes
+     */
+    public function setIngredientes(array $ingredientes): self
+    {
+        $this->ingredientes = $ingredientes;
 
         return $this;
     }
